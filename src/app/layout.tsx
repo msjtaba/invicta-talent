@@ -32,7 +32,6 @@ export const metadata: Metadata = {
   },
   description:
     'Role-based BIM certification taught by practitioners currently delivering aviation, giga-project, hospitality and healthcare programmes across the GCC.',
-  icons: { icon: '/favicon.svg' },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

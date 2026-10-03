@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { NAV_ITEMS, PERSISTENT_CTA } from '@/data/siteData';
 import { Button } from '@/components/ui/Button';
@@ -32,13 +33,11 @@ export const Header: React.FC = () => {
       >
         <div className="max-w-7xl h-full mx-auto flex gap-6 items-center justify-between">
           {/* Lockup */}
-          <Link href="/" className="group flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="font-display text-2xl md:text-[28px] text-crimson leading-none">
-                INVICTA-TALENT
-              </span>
-              <span className="w-1.5 h-1.5 bg-gold group-hover:bg-crimson transition-colors" />
-            </div>
+          <Link href="/" className="flex items-center gap-2.5 md:gap-3" aria-label="Invicta-Talent home">
+            <Image src="/brand/logo.svg" alt="" width={40} height={40} priority unoptimized className="size-8 md:size-10" />
+            <span className="font-display text-2xl md:text-[28px] text-crimson leading-none">
+              INVICTA-TALENT
+            </span>
           </Link>
 
           {/* Desktop Nav */}

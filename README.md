@@ -19,6 +19,7 @@ npm run lint
 │   ├── app/                 Routes (App Router). Each page.tsx sets metadata and renders a view.
 │   │   ├── layout.tsx       Root layout: fonts, header, footer, newsletter dock
 │   │   ├── globals.css      Design tokens (@theme) and scoped component styles
+│   │   ├── favicon.ico      Site favicon (picked up automatically by Next.js)
 │   │   ├── not-found.tsx
 │   │   └── <route>/page.tsx
 │   ├── views/               Full-page components, one per route (HomePage, ProgramDetailPage, …)
@@ -31,11 +32,13 @@ npm run lint
 │   │   └── ui/              Buttons and other primitives (Button, LearnMoreButton, CtaButton, OutlineButton, …)
 │   ├── data/                Site content as typed TS modules (programs, tools, insights, …)
 │   └── fonts/arial/         Self-hosted Arial MT files loaded via next/font/local
-├── public/                  Static files served from / (favicon, images/hero-image.jpg)
+├── public/                  Static files served from /
+│   ├── brand/logo.svg       Header logo (SVGO-optimised from docs/assets/logo.svg)
+│   └── images/              Page imagery (hero-image.jpg)
 ├── docs/                    Design references
 │   ├── design-2.md          Design system: palette, type, spacing, components
 │   ├── components.md        Source specs for the third-party UI components
-│   └── assets/              Source artwork (original hero-image.png)
+│   └── assets/              Source artwork (original logo.svg and hero-image.png)
 ├── reference/               Not part of the app; excluded from TypeScript, ESLint and Tailwind
 │   ├── vite-prototype/      Original Vite/React prototype the site was ported from
 │   └── arial-mt-webfont/    Full Arial MT font pack (the app uses a subset in src/fonts/arial)
