@@ -1,26 +1,848 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Don't scan the reference material (Vite prototype, font pack) for class names. */
+@source not "../../reference";
+
+/* Design-2 tokens — see design-2.md §2–§7 */
+@theme {
+  /* Brand — Crimson */
+  --color-crimson: #6B0606;
+  --color-crimson-dark: #450404;
+  --color-crimson-deepest: #280202;
+
+  /* Light neutrals — Ivory */
+  --color-ivory: #F3EDE2;
+  --color-ivory-warm: #E8E0D2;
+  --color-white: #FFFFFF;
+
+  /* Dark neutrals — Graphite */
+  --color-graphite: #171717;
+  --color-graphite-deep: #0D0D0D;
+  --color-black-soft: #090909;
+
+  /* Supporting */
+  --color-stone: #8C877E;
+  --color-stone-light: #C8C1B5;
+  --color-gold: #C49A52;
+
+  /* Type */
+  --font-sans: var(--font-arial), Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  --font-display: var(--font-anton), 'Anton', Impact, 'Arial Narrow', sans-serif;
+
+  /* Radius — sharp and architectural */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(23, 23, 23, 0.06);
+  --shadow-md: 0 8px 24px rgba(23, 23, 23, 0.08);
+  --shadow-lg: 0 20px 48px rgba(40, 2, 2, 0.18);
+
+  /* Motion */
+  --ease-brand: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --default-transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --default-transition-duration: 250ms;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Semantic — light theme */
+    --bg: var(--color-ivory);
+    --bg-alt: var(--color-ivory-warm);
+    --surface: var(--color-white);
+    --text: var(--color-graphite);
+    --text-muted: var(--color-stone);
+    --heading: var(--color-graphite);
+    --accent: var(--color-crimson);
+    --highlight: var(--color-gold);
+    --border-color: var(--color-stone-light);
+  }
+
+  [data-theme="dark"] {
+    --bg: var(--color-black-soft);
+    --bg-alt: var(--color-graphite-deep);
+    --surface: var(--color-graphite);
+    --text: var(--color-ivory);
+    --text-muted: var(--color-stone-light);
+    --heading: var(--color-white);
+    --accent: var(--color-gold);
+    --highlight: var(--color-gold);
+    --border-color: rgba(243, 237, 226, 0.12);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--color-crimson);
+    color: var(--color-white);
+  }
+
+  /* Gold focus ring — keyboard users only */
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+  }
+
+  /* Forms — design-2 §5.4 */
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    border-radius: var(--radius-sm);
+    transition: border-color 150ms var(--ease-brand), box-shadow 150ms var(--ease-brand);
+  }
+  input:not([type="checkbox"]):not([type="radio"]):focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--color-crimson);
+    box-shadow: 0 0 0 3px rgba(107, 6, 6, 0.15);
+    outline: none;
+  }
+  ::placeholder {
+    color: var(--color-stone);
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      scroll-behavior: auto !important;
+      /* Keep fades, drop movement (framer-motion handles its own via MotionConfig). */
+      transition-property: color, background-color, border-color, opacity !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Anton: one weight, never bold or italic, uppercase, tight leading. */
+@utility font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: normal;
+  font-synthesis: none;
+  text-transform: uppercase;
+  letter-spacing: 0.015em;
+}
+
+/* Eyebrow: Arial Bold 13/12px, 0.18em, with the signature gold rule beneath. */
+@utility eyebrow {
+  display: block;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  @media (width >= 48rem) {
+    font-size: 13px;
+  }
+  &::after {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 2px;
+    margin-top: 12px;
+    background: var(--color-gold);
+  }
+  .text-center &::after,
+  &.text-center::after {
+    margin-inline: auto;
+  }
+  @media (width >= 64rem) {
+    .lg\:text-left &::after {
+      margin-inline: 0;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------
+   Components from components.md, scoped and re-coloured to the
+   design-2 palette. Root classes are renamed to avoid `.card` clashes.
+   --------------------------------------------------------------- */
+
+/* currArch — notification card with accent bar and cursor glow. */
+.curr-arch {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  isolation: isolate;
+  position: relative;
+  min-height: 6.5rem;
+  padding: 1rem 0;
+  /* Outer layer shows through the 1px inset as the border. */
+  background: rgba(107, 6, 6, 0.18);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  /* Per-point crimson shade, set inline (light → dark across the steps). */
+  --bar: var(--color-crimson);
+}
+.curr-arch::before {
+  position: absolute;
+  content: '';
+  inset: 1px;
+  border-radius: 3px;
+  background: var(--color-ivory);
+  transition: background-color 300ms var(--ease-brand);
+  z-index: 2;
+}
+/* Hover: only a very faint wine tint. */
+.curr-arch:hover::before {
+  background: color-mix(in srgb, var(--color-ivory) 95%, var(--color-crimson));
+}
+.curr-arch::after {
+  position: absolute;
+  content: '';
+  width: 0.25rem;
+  inset: 0.75rem auto 0.75rem 0.6rem;
+  border-radius: 0.125rem;
+  background: var(--bar);
+  transition: transform 300ms var(--ease-brand);
+  z-index: 4;
+}
+.curr-arch:hover::after {
+  transform: translateX(0.15rem);
+}
+.curr-arch__title,
+.curr-arch__body {
+  position: relative;
+  transition: transform 300ms var(--ease-brand);
+  z-index: 5;
+}
+.curr-arch__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  color: var(--color-crimson);
+  padding: 0 1.5rem 0.35rem 1.6rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.curr-arch__body {
+  color: rgba(23, 23, 23, 0.75);
+  padding: 0 1.5rem 0 1.6rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.curr-arch:hover .curr-arch__title {
+  transform: translateX(0.15rem);
+}
+.curr-arch:hover .curr-arch__body {
+  transform: translateX(0.25rem);
+}
+.curr-arch__glow,
+.curr-arch__border-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20rem;
+  height: 20rem;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle closest-side at center, var(--color-crimson), transparent);
+  opacity: 0;
+  transition: opacity 300ms var(--ease-brand);
+  pointer-events: none;
+}
+.curr-arch__glow {
+  z-index: 3;
+}
+.curr-arch__border-glow {
+  z-index: 1;
+}
+.curr-arch:hover .curr-arch__glow {
+  opacity: 0.04;
+}
+.curr-arch:hover .curr-arch__border-glow {
+  opacity: 0.35;
+}
+
+/* macOS-style continuous corners. Browsers without `corner-shape` get a plain radius. */
+.squircle-frame {
+  border-radius: 14px;
+}
+.squircle-panel {
+  border-radius: 10px;
+}
+@supports (corner-shape: squircle) {
+  .squircle-frame {
+    border-radius: 26px;
+    corner-shape: squircle;
+  }
+  .squircle-panel {
+    border-radius: 20px;
+    corner-shape: squircle;
+  }
+}
+
+/* delArch — stats card with a notched header. Notch colour must match the card. */
+.del-arch {
+  --del-arch-bg: var(--color-ivory-warm);
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  background: var(--del-arch-bg);
+  padding: 5px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.del-arch:hover {
+  transform: scale(1.03);
+}
+.del-arch__top {
+  min-height: 170px;
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(45deg, var(--color-crimson-deepest) 0%, var(--color-crimson) 100%);
+  position: relative;
+}
+.del-arch__notch {
+  border-bottom-right-radius: 10px;
+  height: 30px;
+  width: 130px;
+  background: var(--del-arch-bg);
+  position: relative;
+  transform: skew(-40deg);
+  box-shadow: -10px -10px 0 0 var(--del-arch-bg);
+}
+.del-arch__notch::before {
+  content: '';
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  top: 0;
+  right: -15px;
+  background: transparent;
+  border-top-left-radius: 10px;
+  box-shadow: -5px -5px 0 2px var(--del-arch-bg);
+}
+.del-arch__top::before {
+  content: '';
+  position: absolute;
+  top: 30px;
+  left: 0;
+  background: transparent;
+  height: 15px;
+  width: 15px;
+  border-top-left-radius: 15px;
+  box-shadow: -5px -5px 0 2px var(--del-arch-bg);
+}
+.del-arch__icons {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.del-arch__code {
+  padding-left: 15px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-crimson);
+}
+.del-arch__badges {
+  padding: 0 12px;
+  display: flex;
+  gap: 8px;
+  color: var(--color-ivory);
+}
+.del-arch__badges svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.75;
+  transition: opacity 150ms var(--ease-brand);
+}
+.del-arch:hover .del-arch__badges svg {
+  opacity: 1;
+}
+.del-arch__bottom {
+  padding: 18px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.del-arch__title {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--color-crimson-deepest);
+  letter-spacing: 0.02em;
+}
+.del-arch__row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 18px;
+}
+.del-arch__item {
+  flex: 1 1 0;
+  text-align: center;
+  padding: 5px;
+  color: rgba(23, 23, 23, 0.6);
+}
+.del-arch__item:nth-child(2) {
+  border-left: 1px solid rgba(107, 6, 6, 0.15);
+  border-right: 1px solid rgba(107, 6, 6, 0.15);
+}
+.del-arch__big {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-crimson);
+}
+.del-arch__small {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* tools — expanding accordion panels. Click-driven; one panel open at a time. */
+.tools {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  background: var(--color-ivory-warm);
+  border: 1px solid rgba(107, 6, 6, 0.15);
+}
+/* Collapsed rows are wine; the open panel is warm ivory edged in wine. */
+.tools__panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  border: 1px solid var(--color-crimson-dark);
+  background: var(--color-crimson);
+  transition: flex 0.5s var(--ease-brand), border-color 0.3s var(--ease-brand), background-color 0.3s var(--ease-brand);
+}
+.tools__panel[data-open='false']:hover {
+  background: var(--color-crimson-dark);
+}
+.tools__panel[data-open='true'] {
+  border-color: rgba(107, 6, 6, 0.35);
+  background: var(--color-ivory);
+}
+.tools__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  text-align: left;
+}
+.tools__label {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ivory);
+  white-space: nowrap;
+  transition: transform 0.5s var(--ease-brand), color 0.3s var(--ease-brand);
+}
+.tools__panel[data-open='false']:hover .tools__label,
+.tools__panel[data-open='false'] .tools__trigger:focus-visible .tools__label {
+  color: var(--color-ivory-warm);
+}
+.tools__panel[data-open='true'] .tools__label {
+  color: var(--color-crimson);
+}
+.tools__content {
+  padding: 0 1.25rem 1.5rem;
+  color: var(--color-graphite);
+}
+@media (width >= 64rem) {
+  .tools {
+    flex-direction: row;
+    height: 380px;
+  }
+  .tools__panel {
+    flex: 1;
+    min-width: 0;
+  }
+  .tools__panel[data-open='true'] {
+    flex: 7;
+  }
+  .tools__panel[data-open='false'] .tools__trigger {
+    position: absolute;
+    inset: 0;
+    justify-content: center;
+    padding: 0;
+  }
+  .tools__panel[data-open='false'] .tools__label {
+    transform: rotate(-90deg);
+  }
+  .tools__panel[data-open='true'] .tools__trigger {
+    padding: 2.5rem 1.75rem 1rem;
+  }
+  .tools__panel[data-open='true'] .tools__label {
+    font-size: 2.5rem;
+  }
+  .tools__content {
+    padding: 0 1.75rem 1.75rem;
+    min-width: 30rem;
+  }
+}
+
+/* newsletter — brutalist signup card, docked bottom-right. */
+.newsletter {
+  width: 300px;
+  padding: 20px;
+  background: var(--color-ivory);
+  border: 4px solid var(--color-graphite);
+  box-shadow: 10px 10px 0 var(--color-crimson);
+  transition: transform 0.3s var(--ease-brand), box-shadow 0.3s var(--ease-brand);
+}
+.newsletter:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 14px 14px 0 var(--color-crimson);
+}
+.newsletter__title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  color: var(--color-graphite);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+.newsletter__title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 90%;
+  height: 3px;
+  background-color: var(--color-gold);
+  transform: translateX(-100%);
+  transition: transform 0.3s var(--ease-brand);
+}
+.newsletter:hover .newsletter__title::after {
+  transform: translateX(0);
+}
+.newsletter__content {
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-graphite);
+  margin-bottom: 16px;
+}
+.newsletter__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.newsletter__form input {
+  padding: 10px;
+  border: 3px solid var(--color-graphite);
+  border-radius: 0 !important;
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--color-white);
+  transition: transform 0.3s var(--ease-brand), background-color 0.3s, color 0.3s;
+  width: 100%;
+}
+.newsletter__form input:focus {
+  outline: none;
+  box-shadow: none !important;
+  transform: scale(1.03);
+  background-color: var(--color-graphite);
+  border-color: var(--color-graphite) !important;
+  color: var(--color-white);
+}
+.newsletter__button {
+  align-self: center;
+  border: 3px solid var(--color-graphite);
+  background: var(--color-graphite);
+  color: var(--color-white);
+  padding: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s var(--ease-brand);
+  width: 60%;
+}
+.newsletter__button::before {
+  content: 'Count me in';
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-crimson);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(100%);
+  transition: transform 0.3s var(--ease-brand);
+}
+.newsletter__button:hover::before,
+.newsletter__button:focus-visible::before {
+  transform: translateY(0);
+}
+.newsletter__button:active {
+  transform: scale(0.95);
+}
+
+/* button-1 — "learn more" circle that expands into a pill. Scoped; no global button reset. */
+.learn-more {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 19.5rem;
+  height: 3rem;
+  cursor: pointer;
+  vertical-align: middle;
+  text-decoration: none;
+  --learn-more-ease: cubic-bezier(0.65, 0, 0.076, 1);
+}
+.learn-more__circle {
+  position: relative;
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  background: var(--color-crimson);
+  border-radius: 1.625rem;
+  transition: width 0.45s var(--learn-more-ease), background-color 0.45s var(--learn-more-ease);
+}
+.learn-more__arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.625rem;
+  margin: auto;
+  width: 1.125rem;
+  height: 0.125rem;
+  background: none;
+  transition: transform 0.45s var(--learn-more-ease), background-color 0.45s var(--learn-more-ease);
+}
+.learn-more__arrow::before {
+  position: absolute;
+  content: '';
+  top: -0.29rem;
+  right: 0.0625rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-top: 0.125rem solid var(--color-ivory);
+  border-right: 0.125rem solid var(--color-ivory);
+  transform: rotate(45deg);
+}
+.learn-more__text {
+  position: absolute;
+  inset: 0 0 0 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 0.75rem;
+  color: var(--color-crimson);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 0.45s var(--learn-more-ease);
+}
+@media (width < 30rem) {
+  .learn-more__text {
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+}
+.learn-more:hover .learn-more__circle,
+.learn-more:focus-visible .learn-more__circle {
+  width: 100%;
+}
+.learn-more:hover .learn-more__arrow,
+.learn-more:focus-visible .learn-more__arrow {
+  background: var(--color-ivory);
+  transform: translateX(1rem);
+}
+.learn-more:hover .learn-more__text,
+.learn-more:focus-visible .learn-more__text {
+  color: var(--color-ivory);
+}
+.learn-more:focus-visible {
+  outline-offset: 4px;
+  border-radius: 1.625rem;
+}
+
+/* button-2 — soft wine circle behind the label that stretches into a pill. Scoped. */
+.cta-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 45px;
+  padding: 0 20px 0 18px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+.cta-pill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45px;
+  height: 45px;
+  border-radius: 50px;
+  background: rgba(107, 6, 6, 0.12);
+  transition: width 0.3s var(--ease-brand), background-color 0.3s var(--ease-brand);
+}
+.cta-pill span {
+  position: relative;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-crimson);
+}
+.cta-pill svg {
+  position: relative;
+  margin-left: 10px;
+  fill: none;
+  stroke: var(--color-crimson);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  transform: translateX(-5px);
+  transition: transform 0.3s var(--ease-brand);
+}
+.cta-pill:hover::before,
+.cta-pill:focus-visible::before {
+  width: 100%;
+  background: rgba(107, 6, 6, 0.16);
+}
+.cta-pill:hover svg,
+.cta-pill:focus-visible svg {
+  transform: translateX(0);
+}
+.cta-pill:active {
+  transform: scale(0.95);
+}
+.cta-pill:focus-visible {
+  border-radius: 50px;
+}
+
+/* button-3 — outline button with a leading arrow that fills on hover. Scoped; light and dark tones. */
+.btn-outline {
+  --btn-outline-color: var(--color-crimson);
+  --btn-outline-fill-text: var(--color-ivory);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0 1.5rem 0 1.1rem;
+  border: 0.15em solid var(--btn-outline-color);
+  border-radius: 11px;
+  background-color: transparent;
+  color: var(--btn-outline-color);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.6s ease, color 0.6s ease;
+}
+.btn-outline--dark {
+  --btn-outline-color: var(--color-ivory);
+  --btn-outline-fill-text: var(--color-crimson-deepest);
+}
+.btn-outline svg {
+  width: 1.4em;
+  flex-shrink: 0;
+  transition: transform 0.6s ease;
+}
+.btn-outline__text {
+  display: block;
+  line-height: 1.2;
+  padding: 0.85rem 0;
+}
+.btn-outline:hover,
+.btn-outline:focus-visible {
+  background-color: var(--btn-outline-color);
+  color: var(--btn-outline-fill-text);
+}
+.btn-outline:hover svg,
+.btn-outline:focus-visible svg {
+  transform: translateX(5px);
+}
+
+/* Tool certificate detail window — native <dialog> with a fade/rise in and out. */
+.tool-dialog {
+  margin: auto;
+  padding: 0;
+  width: calc(100% - 2rem);
+  max-width: 42rem;
+  max-height: calc(100dvh - 3rem);
+  overflow-y: auto;
+  border: 1px solid var(--color-stone-light);
+  border-radius: 10px;
+  background: var(--color-ivory);
+  color: var(--color-graphite);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition: opacity 0.25s var(--ease-brand), transform 0.25s var(--ease-brand),
+    overlay 0.25s allow-discrete, display 0.25s allow-discrete;
+}
+.tool-dialog[open] {
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  .tool-dialog[open] {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+.tool-dialog::backdrop {
+  background: rgba(40, 2, 2, 0);
+  transition: background-color 0.25s var(--ease-brand), overlay 0.25s allow-discrete,
+    display 0.25s allow-discrete;
+}
+.tool-dialog[open]::backdrop {
+  background: rgba(40, 2, 2, 0.35);
+}
+@starting-style {
+  .tool-dialog[open]::backdrop {
+    background: rgba(40, 2, 2, 0);
+  }
+}
+/* No page scroll behind an open window. */
+html:has(.tool-dialog[open]) {
+  overflow: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ivory);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-crimson);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-crimson-dark);
 }

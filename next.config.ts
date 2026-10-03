@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      // The Outcomes page was removed; send old links to Programs.
+      { source: "/outcomes", destination: "/programs", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-sandy-ivory: #E8DDC8;
+    --color-lava-red: #B63824;
+    --color-deep-lava: #7D2419;
+    --color-charcoal: #171717;
+    --color-near-black: #0B0B0A;
+    --color-muted-sand: #B9AD99;
+    --color-navy: #0D1B2A;
+  }
+
+  body {
+    font-family: 'Arial', 'Arial MT Pro', sans-serif;
+    background-color: var(--color-near-black);
+    color: var(--color-sandy-ivory);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Anton', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* Custom Oversized Typographic Scale Utilities */
+.text-hero {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(64px, 11vw, 160px);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.text-statement {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(52px, 9vw, 130px);
+  line-height: 0.94;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.text-heading {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(40px, 7vw, 96px);
+  line-height: 0.96;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.text-subheading {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(28px, 4vw, 56px);
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.text-num {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(100px, 15vw, 220px);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+}
+
+/* Grid & Editorial Pattern Backgrounds */
+.bg-editorial-grid {
+  background-image: 
+    linear-gradient(to right, rgba(232, 221, 200, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(232, 221, 200, 0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.bg-editorial-grid-dark {
+  background-image: 
+    linear-gradient(to right, rgba(23, 23, 23, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(23, 23, 23, 0.08) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0B0B0A;
+}
+::-webkit-scrollbar-thumb {
+  background: #B63824;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7D2419;
+}
